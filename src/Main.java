@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -14,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
 
         boolean quit = false;
-        while (!quit) { //loops through the options until the user quits the progran
+        while (!quit) { //loops through the options until the user quits the program
             System.out.println("\nWelcome to the New Theatre!");
             System.out.println("-------------------------------");
             System.out.println("Please select an option: ");
@@ -36,7 +37,10 @@ public class Main {
             user_option = input.nextLine(); //takes user input
 
             switch (user_option) { //executes depending on the choice made by the user
-                case "0" -> quit = true;
+                case "0" -> {
+                    quit = true;
+                    System.out.println("See you soon, Goodbye!");
+                }
                 case "1" -> buy_ticket(false);
                 case "2" -> print_seating_area(rows);
                 case "3" -> cancel_ticket();
@@ -66,16 +70,30 @@ public class Main {
 
         Scanner input = new Scanner(System.in);//gets user input
         System.out.println("Input row number: "); //ask for user to input the row number using scanner
-        int row_number = input.nextInt();
+        int row_number = 0;
+
+        try {
+            row_number = input.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Please enter number!");
+            buy_ticket(false);
+        }
 
         if (row_number > 0 && row_number <= 3) {
         } else {                                   //if the row number is not more than 0 and less or
             System.out.println("Invalid input!"); // equals to 3 the program will show that the input is invalid
             buy_ticket(false);
         }
+
         //ask for user to input the seat number using scanner
         System.out.println("Input seat number: ");
-        int seat_number = input.nextInt();
+        int seat_number = 0;
+        try {
+            seat_number = input.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Please enter number!");
+            buy_ticket(false);
+        }
 
         if (cancelTicket) { //if cancelTicket is true then this code will execute and remove the selected seat
             for (int i = 0; i < rows.length; i++) { //loops through each row
