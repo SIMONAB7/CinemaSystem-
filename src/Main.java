@@ -121,15 +121,10 @@ public class Main {
                         rows[i][seat_number - 1] = 1;//if seat is available, the seat will be set to 1 indicating that its sold
                         System.out.println("Ticket successfully purchased");
                         //gets customer information to create a new Ticket object
-                        System.out.println("Input your name: ");
-                        String name = input.next();
-                        System.out.println("Input your surname: ");
-                        String surname = input.next();
-                        System.out.println("Input your email: ");
-                        String email = input.next();
-                        System.out.println("Input price: ");
+                        System.out.println("Input price: "); //price for row 1-£10, row 2-£13, row 3-£15
                         int price = input.nextInt();
-                        Person newCustomer = new Person(name, surname, email);
+
+                        Person newCustomer = personInformation(); //gets the info for the customer from the method
                         Ticket newTicket = new Ticket(row_number, seat_number, price, newCustomer);
                         tickets.add(newTicket);//adds a new Ticket object to the ArrayList of tickets
                     }
@@ -138,9 +133,19 @@ public class Main {
             }
             System.out.println("Seat doesn't exist");
         }
-
     }
+    public static Person personInformation () { //this method is to ask for the customer information
+        Scanner input = new Scanner(System.in);//gets user input
 
+        System.out.println("Input your name: ");
+        String name = input.next();
+        System.out.println("Input your surname: ");
+        String surname = input.next();
+        System.out.println("Input your email: ");
+        String email = input.next();
+
+        return new Person(name, surname, email);
+    }
     public static void print_seating_area(int[][] rows) {
         //prints the stage plan with simple sout operation
         System.out.print("     ***********\n");
@@ -171,11 +176,9 @@ public class Main {
         }
 
     }
-
     public static void cancel_ticket() {
         buy_ticket(true); //if true it will activate the switch cases in buy_ticket and remove the seat selected
     }
-
     public static void show_available() {
         //print function for available seats for all rows
         for (int i = 0; i < rows.length; i++) { //looping through the rows and prints the seats that are available for the specific row (1, 2, 3)
@@ -189,7 +192,6 @@ public class Main {
         }
         System.out.println();
     }
-
     public static void save() throws Exception {
         BufferedWriter fileWriter = new BufferedWriter(new FileWriter("saveFile.txt", false));
         //loops through the rows array and writes the three rows into the assigned file
@@ -206,7 +208,6 @@ public class Main {
         fileWriter.close();
         System.out.println("File successfully saved!");
     }
-
     public static void load() throws FileNotFoundException {
         try {
             Scanner fileLoader = new Scanner(new File("saveFile.txt")); //creates the path from which the scanner will read/load the file
@@ -224,7 +225,6 @@ public class Main {
             e.printStackTrace(); //used to handle exceptions and errors in the code when file not found
         }
     }
-
     public static void show_tickets_info() {
         if (tickets.isEmpty()) { //checks if there are any tickets saved in the arrayList
             System.out.println("There are no tickets purchased"); //if there are no tickets it will print a message
@@ -240,7 +240,6 @@ public class Main {
             //after printing the information for the tickets, then it will print the total price of all the tickets bought
         }
     }
-
     public static void sort_tickets(ArrayList<Ticket> tickets) {
         ArrayList<Ticket> orderedTickets = new ArrayList<>(tickets.size());
 
