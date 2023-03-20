@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
@@ -41,7 +40,7 @@ public class Main {
                     quit = true;
                     System.out.println("See you soon, Goodbye!");
                 }
-                case "1" -> buy_ticket(false);
+                case "1" -> buy_ticket();
                 case "2" -> print_seating_area(rows);
                 case "3" -> cancel_ticket();
                 case "4" -> show_available();
@@ -65,74 +64,14 @@ public class Main {
             }
         }
     }
-
-    public static void buy_ticket(boolean cancelTicket) {
-
-        Scanner input = new Scanner(System.in);//gets user input
-        System.out.println("Input row number: "); //ask for user to input the row number using scanner
-        int row_number = 0;
-
-        try {
-            row_number = input.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println("Please enter number!");
-            buy_ticket(false);
+    public static int getNumber (String prompt) { //function that gets integer user input that takes prompt as parameter
+        Scanner input = new Scanner(System.in); //this parameter tells the user which input is expected from them to provide
+        System.out.println(prompt);
+        while (!input.hasNextInt()) {
+            System.out.println("Invalid input!\n" + prompt);
+            input.next();
         }
-
-        if (row_number > 0 && row_number <= 3) {
-        } else {                                   //if the row number is not more than 0 and less or
-            System.out.println("Invalid input!"); // equals to 3 the program will show that the input is invalid
-            buy_ticket(false);
-        }
-
-        //ask for user to input the seat number using scanner
-        System.out.println("Input seat number: ");
-        int seat_number = 0;
-        try {
-            seat_number = input.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println("Please enter number!");
-            buy_ticket(false);
-        }
-
-        if (cancelTicket) { //if cancelTicket is true then this code will execute and remove the selected seat
-            for (int i = 0; i < rows.length; i++) { //loops through each row
-                for (int j = 0; j < seat_number; j++) { //loops through each seat
-                    if (i == row_number - 1 && j == seat_number - 1) { //this will check if the selected seat and row are occupied
-                        rows[i][j] = 0; // if seat is occupied it will change it back to zero to indicate the cancellation requested
-                        System.out.println("Ticket cancelled!");
-                    }
-                }
-            }
-            //loops through each ticket in the arraylist and finds and removes the ticket that has matching row and seat number
-            for (Ticket ticket : tickets) { //loops through all the tickets
-                if (ticket.getRow() == row_number || ticket.getSeat() == seat_number) {//checks if the row and seat number from the ArrayList is equal to the row and seat from the original arrays
-                    tickets.remove(ticket);//if everything matches then the ticket will be removed
-                    break;
-                }
-            }
-        } else {
-            for (int i = 0; i < rows.length; i++) {
-                //checking if the given row number is the same as the current row being checked and seat number is valid
-                if (row_number == i + 1 && seat_number > 0 && seat_number <= rows[i].length) {
-                    if (rows[i][seat_number - 1] == 1) {
-                        System.out.println("Seat occupied");
-                    } else {
-                        rows[i][seat_number - 1] = 1;//if seat is available, the seat will be set to 1 indicating that its sold
-                        System.out.println("Ticket successfully purchased");
-                        //gets customer information to create a new Ticket object
-                        System.out.println("Input price: "); //price for row 1-£10, row 2-£13, row 3-£15
-                        int price = input.nextInt();
-
-                        Person newCustomer = personInformation(); //gets the info for the customer from the method
-                        Ticket newTicket = new Ticket(row_number, seat_number, price, newCustomer);
-                        tickets.add(newTicket);//adds a new Ticket object to the ArrayList of tickets
-                    }
-                    return;
-                }
-            }
-            System.out.println("Seat doesn't exist");
-        }
+        return input.nextInt();
     }
     public static Person personInformation () { //this method is to ask for the customer information
         Scanner input = new Scanner(System.in);//gets user input
@@ -145,6 +84,39 @@ public class Main {
         String email = input.next();
 
         return new Person(name, surname, email);
+    }
+    public static void buy_ticket() {
+
+        int row_number = getNumber("Enter row number: ");
+        if (row_number < 1 || row_number > 3) { //if the row number is not more than 0 and less or
+            System.out.println("Invalid input! Please pick Row 1, 2 or 3!"); // equals to 3 the program will show that the input is invalid
+            buy_ticket();
+            return;
+        }
+        //ask for user to input the seat number using the additional function getNumber
+        //which gets input by the user using scanner and prompt
+        int seat_number = getNumber("Enter seat number: ");
+        if ((row_number == 1 && (seat_number < 1 || seat_number > 12)) ||
+            (row_number == 2 && (seat_number < 1 || seat_number > 16)) ||
+            (row_number == 3 && (seat_number < 1 || seat_number > 20))){
+            System.out.println("Invalid input for seat!\n Row1-12, Row2-16, Row3-20 seats");
+            buy_ticket();
+            return;
+        }
+
+        //checking if the given row number is the same as the current row being checked and seat number is valid
+        if (rows[row_number - 1][seat_number - 1] == 1) {
+                    System.out.println("Seat occupied");
+        } else {
+            rows[row_number - 1][seat_number - 1] = 1;//if seat is available, the seat will be set to 1 indicating that its sold
+            //gets customer information to create a new Ticket object
+            Person newCustomer = personInformation(); //gets the info for the customer from the method
+            int price = getNumber("Enter price: "); //price for row 1-£10, row 2-£13, row 3-£15
+            System.out.println("Ticket successfully purchased!");
+
+            Ticket newTicket = new Ticket(row_number, seat_number, price, newCustomer);
+            tickets.add(newTicket);//adds a new Ticket object to the ArrayList of tickets
+        }
     }
     public static void print_seating_area(int[][] rows) {
         //prints the stage plan with simple sout operation
@@ -177,7 +149,37 @@ public class Main {
 
     }
     public static void cancel_ticket() {
-        buy_ticket(true); //if true it will activate the switch cases in buy_ticket and remove the seat selected
+
+        int row_number = getNumber("Enter row number: ");
+        if (row_number < 1 || row_number > 3) {
+            System.out.println("Invalid input!");
+            cancel_ticket();
+            return;
+        }
+
+        int seat_number = getNumber("Enter seat number: ");
+        if ((row_number == 1 && (seat_number < 1 || seat_number > 12)) ||
+            (row_number == 2 && (seat_number < 1 || seat_number > 16)) ||
+            (row_number == 3 && (seat_number < 1 || seat_number > 20))) {
+            System.out.println("Invalid input for seat!");
+            cancel_ticket();
+            return;
+        }
+
+        if (rows[row_number - 1][seat_number - 1] == 0){
+            System.out.println("Seat is not occupied therefore it cannot be cancelled!");
+        } else {
+            rows[row_number - 1][seat_number - 1] = 0; // if seat is occupied it will change it back to zero to indicate the cancellation requested
+            System.out.println("Ticket cancelled!");
+
+            //loops through each ticket in the arraylist and finds and removes the ticket that has matching row and seat number
+            for (Ticket ticket : tickets) { //loops through all the tickets
+                if (ticket.getRow() == row_number || ticket.getSeat() == seat_number) {//checks if the row and seat number from the ArrayList is equal to the row and seat from the original arrays
+                    tickets.remove(ticket);//if everything matches then the ticket will be removed
+                    break;
+                }
+            }
+        }
     }
     public static void show_available() {
         //print function for available seats for all rows
@@ -264,5 +266,5 @@ public class Main {
             ticket.print(); //prints all information about the tickets
             System.out.println("-------------------------------");
         }
-    }
+    } // reference for bubble sort algorithm https://www.softwaretestinghelp.com/bubble-sort-java/
 }
